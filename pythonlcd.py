@@ -21,14 +21,17 @@ SENSOR_PIN = 15
 bewegungssensor_state = True
 bus.write_byte(0x27, 0b00000000)
 backlight_on = False
-starttime = 19
+starttime = 1900
 
 old_text_string_line1 = "lol"
 old_text_string_line2 = "lel"
 
+GPIO.cleanup()
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 GPIO.setup(SENSOR_PIN, GPIO.IN)
+
+print("setup done")
 
 try:
     def update_lcd(old_text, new_text, line):
@@ -47,31 +50,18 @@ try:
         old_text = new_text
 
     def normalrun():
-#test
-#wenn der bewegungssensor geht, zwischen diesen kommentaren alles rauskommentieren...
-#        global backlight_on
-#        localtime = datetime.now().strftime("%H:%M")
-#        if localtime <= "16:00" or localtime >= "21:00":
-#            if backlight_on:
-#                bus.write_byte(0x27, 0b00000000)
-#                backlight_on = False
-#        else:
-#            if not backlight_on:
-#                bus.write_byte(0x27, 0b00000001)
-#                backlight_on = True
-#wenn der bewegungssensor geht, zwischen diesen kommentaren alles rauskommentieren...
-            new_text_string_line1 = datetime.now().strftime("  %H:%M %d-%m")
-            update_lcd(old_text_string_line1, new_text_string_line1, line=0)
-            new_text_string_line2 = str("     " + subprocess.run(['vcgencmd', 'measure_temp'], stdout=subprocess.PIPE).stdout.decode("utf-8").split("=")[1])
-            update_lcd(old_text_string_line2, new_text_string_line2, line=1)
+        new_text_string_line1 = datetime.now().strftime("  %H:%M %d-%m")
+        update_lcd(old_text_string_line1, new_text_string_line1, line=0)
+        new_text_string_line2 = str("     " + subprocess.run(['vcgencmd', 'measure_temp'], stdout=subprocess.PIPE).stdout.decode("utf-8").split("=")[1])
+        update_lcd(old_text_string_line2, new_text_string_line2, line=1)
             
 
     def sensor_check():
         global bewegungssensor_state
         global backlight_on
         global starttime
-        localtime = datetime.now().strftime("%H:%M")
-        if localtime <= "8:00" or localtime >= "21:00":
+        localtime = int(datetime.now().strftime("%H%M"))
+        if localtime <= 800 or localtime >= 2200:
             if backlight_on:
                 bus.write_byte(0x27, 0b00000000)
                 backlight_on = False
@@ -90,7 +80,7 @@ try:
                 if not backlight_on:
                     bus.write_byte(0x27, 0b00000001)
                     backlight_on = True
-                if (str(int(starttime.split(":")[0] + starttime.split(":")[1]) + 3)) <= str(int(localtime.split(":")[0] + localtime.split(":")[1])):
+                if (starttime + 2) <= localtime:
                     bewegungssensor_state = True
                     time.sleep(0.25)
                 else:
