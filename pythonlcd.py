@@ -47,6 +47,7 @@ try:
         old_text = new_text
 
     def normalrun():
+#test
 #wenn der bewegungssensor geht, zwischen diesen kommentaren alles rauskommentieren...
 #        global backlight_on
 #        localtime = datetime.now().strftime("%H:%M")
